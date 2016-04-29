@@ -43,6 +43,7 @@
           <button id="demo-button" disabled="true">Demo</button>
           <button id="create-button" disabled="true">Create</button>
           <button id="join-button" disabled="true">Join</button>
+          <button id="leave-button" disabled="true">Leave</button>
         </div>
       </div>
 
@@ -61,7 +62,7 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.1.9" type="text/javascript"></script>
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.0" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
@@ -140,6 +141,7 @@
         var createButton = document.getElementById('create-button');
         var joinButton = document.getElementById('join-button');
         var sendButton = document.getElementById('send-button');
+        var leaveButton = document.getElementById('leave-button');
 
         demoButton.disabled = false;
         createButton.disabled = false;
@@ -166,9 +168,23 @@
         sendButton.onclick = function() {
           voxeet.sendConferenceMessage(messageInput.value);
         }
+
+        leaveButton.onclick = function() {
+          voxeet.leaveConference();
+        }
       }
 
       var voxeet = new VoxeetSdk();
+
+      voxeet.on('conferenceJoined', function() {
+        document.getElementById('leave-button').disabled = false;
+        document.getElementById('join-button').disabled = true;
+      });
+
+      voxeet.on('conferenceLeft', function() {
+        document.getElementById('leave-button').disabled = true;
+        document.getElementById('join-button').disabled = false;
+      });
 
       voxeet.on('participantAdded', function(peerId, stream) {
         addParticipant(peerId, stream);
@@ -185,7 +201,7 @@
         document.getElementById('messages').appendChild(node);
       });
 
-      voxeet.initialize("rrd", "voxeet")
+      voxeet.initialize("YourCustomerKey", "YourCustomerSecret")
             .then(function(myPeerId){
                 enableUI();
             });
