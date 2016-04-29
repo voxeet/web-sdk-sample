@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Voxeet SDK</title>
+    <style type="text/css">
+      .flex {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .flex > div {
+        flex: 1 1 auto;
+        margin: 20px;
+      }
+
+      .flex > input {
+          align-self: center;
+      }
+
+      .flex-column {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .flex-column > div {
+        flex: 1 1 auto;
+      }
+
+      input {
+
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="flex">
+      <div id="room-choice">
+        <h3>Voxeet Sdk Demo</h3>
+        <div>
+          <input type="text" id="room-id" autofocus="">
+        </div>
+        <div>
+          <button id="demo-button" disabled="true">Demo</button>
+          <button id="create-button" disabled="true">Create</button>
+          <button id="join-button" disabled="true">Join</button>
+        </div>
+      </div>
+
+      <div id="participants">
+        <h3>Participants</h3>
+        <div id="participant-list" class="flex-column">
+        </div>
+      </div>
+
+      <div id="messages">
+        <h3>Messages</h3>
+        <div>
+          <input type="text" id="message-input" autofocus="">
+          <button id="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.1.8" type="text/javascript"></script>
+    <script type="text/javascript">
+      var participants = [];
+
+      function addParticipant(peerId, stream) {
+        var participantList = document.getElementById('participant-list');
+        participants[peerId] = {x: 0.0, y: 0.5}; // Initial position
+
+        if (voxeet.userId !== peerId) {
+
+          var node = document.createElement('div');
+          node.innerHTML = '<div>' + peerId + '</div>';
+          node.setAttribute('id', "participant-" + peerId);
+          node.setAttribute('class', 'flex');
+
+          var horizontalRange = document.createElement('input');
+          horizontalRange.setAttribute('type', 'range');
+          horizontalRange.setAttribute('id', peerId);
+          horizontalRange.min = -1.0;
+          horizontalRange.max = 1.0;
+          horizontalRange.step = 0.1;
+          horizontalRange.value= 0.0;
+
+          horizontalRange.oninput = function(e) {
+            console.log(e.target.value);
+            var peerId = e.target.getAttribute('id');
+            participants[peerId].x = e.target.value;
+
+            updatePosition(peerId);
+          };
+
+          node.appendChild(horizontalRange);
+
+          var verticalRange = document.createElement('input');
+          verticalRange.setAttribute('type', 'range');
+          //verticalRange.setAttribute('orient', 'vertical');
+          verticalRange.setAttribute('id', peerId);
+          verticalRange.min = 0.0;
+          verticalRange.max = 1.0;
+          verticalRange.step = 0.1;
+          verticalRange.value= 0.5;
+
+          verticalRange.oninput = function(e) {
+            console.log(e.target.value);
+            var peerId = e.target.getAttribute('id');
+            participants[peerId].y = e.target.value;
+
+            updatePosition(peerId);
+          };
+
+          node.appendChild(verticalRange);
+
+          participantList.appendChild(node);
+
+          updatePosition(peerId);
+        }
+      }
+
+      function removeParticipant(peerId) {
+        var node = document.getElementById("participant-" + peerId);
+        participants[peerId] = {x: 0.0, y: 0.5}; // Initial position
+        if (node != undefined) {
+          node.parentNode.removeChild(node);
+        }
+      }
+
+      function updatePosition(peerId) {
+        if (participants[peerId] !== undefined) {
+          voxeet.setPeerPosition(peerId, participants[peerId].x, participants[peerId].y);
+        }
+      }
+
+      function enableUI() {
+        var roomInput = document.getElementById('room-id');
+        var messageInput = document.getElementById('message-input');
+        var demoButton = document.getElementById('demo-button');
+        var createButton = document.getElementById('create-button');
+        var joinButton = document.getElementById('join-button');
+        var sendButton = document.getElementById('send-button');
+
+        demoButton.disabled = false;
+        createButton.disabled = false;
+        joinButton.disabled = false;
+
+        demoButton.onclick = function() {
+          voxeet.createDemoConference();
+        }
+
+        createButton.onclick = function() {
+          voxeet.createConference()
+                .then(function(res){
+                  roomInput.value = res.data.conferenceAlias;
+                });
+
+        }
+
+        joinButton.onclick = function() {
+          if (roomInput !== undefined) {
+            voxeet.joinConference(roomInput.value);
+          }
+        }
+
+        sendButton.onclick = function() {
+          voxeet.sendConferenceMessage(messageInput.value);
+        }
+      }
+
+      var voxeet = new VoxeetSdk();
+
+      voxeet.on('participantAdded', function(peerId, stream) {
+        addParticipant(peerId, stream);
+      });
+
+      voxeet.on('participantRemoved', function(peerId) {
+        removeParticipant(peerId);
+      });
+
+      voxeet.on('messageReceived', function(msg) {
+        var node = document.createElement('div');
+        node.innerHTML = msg;
+
+        document.getElementById('messages').appendChild(node);
+      });
+
+      voxeet.initialize("rrd", "voxeet")
+            .then(function(myPeerId){
+                enableUI();
+            });
+
+    </script>
+  </body>
+</html>
