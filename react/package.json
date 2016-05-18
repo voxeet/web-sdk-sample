@@ -1,0 +1,53 @@
+{
+  "name": "voxeet-web-sdk-react-sample",
+  "version": "1.0.0",
+  "description": "A Voxeet SDK sample using react",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && npm run build:webpack",
+    "build:webpack": "NODE_ENV=production webpack --config webpack.config.prod.js",
+    "start": "node server.js",
+    "lint": "eslint src; exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/voxeet/web-sdk.git"
+  },
+  "keywords": [
+    "voxeet",
+    "sdk",
+    "conference",
+    "react"
+  ],
+  "author": "Damien Varron <damien@varron.fr> (http://github.com/damusnet)",
+  "private": true,
+  "devDependencies": {
+    "babel-core": "^6.0.20",
+    "babel-eslint": "^4.1.3",
+    "babel-loader": "^6.0.1",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-react": "^6.0.15",
+    "babel-preset-stage-0": "^6.0.15",
+    "css-loader": "^0.23.1",
+    "eslint": "^1.10.3",
+    "eslint-config-defaults": "^9.0.0",
+    "eslint-plugin-react": "^3.6.2",
+    "file-loader": "^0.8.5",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "react-hot-loader": "^1.3.0",
+    "rimraf": "^2.4.3",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.1"
+  },
+  "dependencies": {
+    "alt": "^0.17.4",
+    "css-element-queries": "^0.3.2",
+    "d3": "^3.5.6",
+    "immutable": "^3.7.5",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "react-draggable": "^1.3.4"
+  }
+}
