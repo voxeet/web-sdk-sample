@@ -62,18 +62,18 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.5" type="text/javascript"></script>
+    <script src="/voxeet-sdk.js" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
-      function addParticipant(peerId, stream) {
+      function addParticipant(peerId, userInfo, stream) {
         var participantList = document.getElementById('participant-list');
         participants[peerId] = {x: 0.0, y: 0.5}; // Initial position
 
         if (voxeet.userId !== peerId) {
 
           var node = document.createElement('div');
-          node.innerHTML = '<div>' + peerId + '</div>';
+          node.innerHTML = '<div>' + userInfo['name'] + '</div>';
           node.setAttribute('id', "participant-" + peerId);
           node.setAttribute('class', 'flex');
 
@@ -186,8 +186,8 @@
         document.getElementById('join-button').disabled = false;
       });
 
-      voxeet.on('participantAdded', function(peerId, stream) {
-        addParticipant(peerId, stream);
+      voxeet.on('participantAdded', function(peerId, userInfo, stream) {
+        addParticipant(peerId, userInfo, stream);
       });
 
       voxeet.on('participantRemoved', function(peerId) {
@@ -201,8 +201,8 @@
         document.getElementById('messages').appendChild(node);
       });
 
-      voxeet.initialize("YourCustomerKey", "YourCustomerSecret")
-            .then(function(myPeerId){
+      voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "Thomas"})
+            .then(function(myUserId){
                 enableUI();
             });
 
