@@ -44,6 +44,7 @@
           <button id="create-button" disabled="true">Create</button>
           <button id="join-button" disabled="true">Join</button>
           <button id="leave-button" disabled="true">Leave</button>
+          <button id="mute-button">Mute</button>
         </div>
       </div>
 
@@ -62,24 +63,25 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.5" type="text/javascript"></script>
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.6" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
-      function addParticipant(peerId, userInfo, stream) {
+      function addParticipant(userId, userInfo, stream) {
         var participantList = document.getElementById('participant-list');
-        participants[peerId] = {x: 0.0, y: 0.5}; // Initial position
+        participants[userId] = {x: 0.0, y: 0.5}; // Initial position
 
-        if (voxeet.userId !== peerId) {
+        if (voxeet.userId !== userId) {
 
           var node = document.createElement('div');
+
           node.innerHTML = '<div>' + userInfo['name'] + '</div>';
-          node.setAttribute('id', "participant-" + peerId);
+          node.setAttribute('id', "participant-" + userId);
           node.setAttribute('class', 'flex');
 
           var horizontalRange = document.createElement('input');
           horizontalRange.setAttribute('type', 'range');
-          horizontalRange.setAttribute('id', peerId);
+          horizontalRange.setAttribute('id', userId);
           horizontalRange.min = -1.0;
           horizontalRange.max = 1.0;
           horizontalRange.step = 0.1;
@@ -87,10 +89,10 @@
 
           horizontalRange.oninput = function(e) {
             console.log(e.target.value);
-            var peerId = e.target.getAttribute('id');
-            participants[peerId].x = e.target.value;
+            var userId = e.target.getAttribute('id');
+            participants[userId].x = e.target.value;
 
-            updatePosition(peerId);
+            updatePosition(userId);
           };
 
           node.appendChild(horizontalRange);
@@ -98,7 +100,7 @@
           var verticalRange = document.createElement('input');
           verticalRange.setAttribute('type', 'range');
           //verticalRange.setAttribute('orient', 'vertical');
-          verticalRange.setAttribute('id', peerId);
+          verticalRange.setAttribute('id', userId);
           verticalRange.min = 0.0;
           verticalRange.max = 1.0;
           verticalRange.step = 0.1;
@@ -106,31 +108,42 @@
 
           verticalRange.oninput = function(e) {
             console.log(e.target.value);
-            var peerId = e.target.getAttribute('id');
-            participants[peerId].y = e.target.value;
+            var userId = e.target.getAttribute('id');
+            participants[userId].y = e.target.value;
 
-            updatePosition(peerId);
+            updatePosition(userId);
           };
 
           node.appendChild(verticalRange);
 
+          var muteButton = document.createElement('button');
+          muteButton.setAttribute('id', userId);
+          muteButton.innerHTML = 'Mute';
+
+          muteButton.onclick = function(e) {
+            var userId = e.target.getAttribute('id');
+            voxeet.toggleMute(userId);
+          }
+
+          node.appendChild(muteButton);
+
           participantList.appendChild(node);
 
-          updatePosition(peerId);
+          updatePosition(userId);
         }
       }
 
-      function removeParticipant(peerId) {
-        var node = document.getElementById("participant-" + peerId);
-        participants[peerId] = {x: 0.0, y: 0.5}; // Initial position
+      function removeParticipant(userId) {
+        var node = document.getElementById("participant-" + userId);
+        participants[userId] = {x: 0.0, y: 0.5}; // Initial position
         if (node != undefined) {
           node.parentNode.removeChild(node);
         }
       }
 
-      function updatePosition(peerId) {
-        if (participants[peerId] !== undefined) {
-          voxeet.setPeerPosition(peerId, participants[peerId].x, participants[peerId].y);
+      function updatePosition(userId) {
+        if (participants[userId] !== undefined) {
+          voxeet.setUserPosition(userId, participants[userId].x, participants[userId].y);
         }
       }
 
@@ -142,6 +155,7 @@
         var joinButton = document.getElementById('join-button');
         var sendButton = document.getElementById('send-button');
         var leaveButton = document.getElementById('leave-button');
+        var muteButton = document.getElementById('mute-button');
 
         demoButton.disabled = false;
         createButton.disabled = false;
@@ -172,6 +186,10 @@
         leaveButton.onclick = function() {
           voxeet.leaveConference();
         }
+
+        muteButton.onclick = function() {
+          voxeet.toggleMute(voxeet.userId);
+        }
       }
 
       var voxeet = new VoxeetSdk();
@@ -186,12 +204,12 @@
         document.getElementById('join-button').disabled = false;
       });
 
-      voxeet.on('participantAdded', function(peerId, userInfo, stream) {
-        addParticipant(peerId, userInfo, stream);
+      voxeet.on('participantAdded', function(userId, userInfo, stream) {
+        addParticipant(userId, userInfo, stream);
       });
 
-      voxeet.on('participantRemoved', function(peerId) {
-        removeParticipant(peerId);
+      voxeet.on('participantRemoved', function(userId) {
+        removeParticipant(userId);
       });
 
       voxeet.on('messageReceived', function(msg) {
@@ -201,7 +219,7 @@
         document.getElementById('messages').appendChild(node);
       });
 
-      voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "Thomas"})
+      voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "John Doe"})
             .then(function(myUserId){
                 enableUI();
             });
