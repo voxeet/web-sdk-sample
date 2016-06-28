@@ -26,6 +26,10 @@
         flex: 1 1 auto;
       }
 
+      .red {
+        border: 1px solid #FF0000;
+      }
+
       input {
 
       }
@@ -63,7 +67,7 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.9" type="text/javascript"></script>
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.10" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
@@ -77,7 +81,7 @@
 
           node.innerHTML = '<div>' + userInfo['name'] + '</div>';
           node.setAttribute('id', "participant-" + userId);
-          node.setAttribute('class', 'flex');
+          node.setAttribute('class', 'flex red');
 
           var horizontalRange = document.createElement('input');
           horizontalRange.setAttribute('type', 'range');
@@ -166,11 +170,19 @@
         }
 
         createButton.onclick = function() {
-          voxeet.createConference()
+          var alias = "";
+
+          if (roomInput !== undefined) {
+            alias = roomInput.value;
+          }
+
+          voxeet.createConference(alias)
                 .then(function(res){
                   roomInput.value = res.data.conferenceAlias;
+                })
+                .catch(function(e) {
+                  console.error(e);
                 });
-
         }
 
         joinButton.onclick = function() {
@@ -193,10 +205,28 @@
       }
 
       var voxeet = new VoxeetSdk();
+      var participants = [];
+      var timeout = null;
 
       voxeet.on('conferenceJoined', function() {
         document.getElementById('leave-button').disabled = false;
         document.getElementById('join-button').disabled = true;
+
+        timeout = setInterval(function () {
+
+          for (var userId in participants) {
+            var node = document.getElementById('participant-' + userId);
+            if (node != null) {
+              voxeet.isUserSpeaking(userId, function(isSpeaking) {
+                if (isSpeaking) {
+                  node.setAttribute('class', 'flex red');
+                } else {
+                  node.setAttribute('class', 'flex');
+                }
+              });
+            }
+          }
+        }, 500);
       });
 
       voxeet.on('conferenceLeft', function() {
@@ -206,10 +236,16 @@
 
       voxeet.on('participantAdded', function(userId, userInfo, stream) {
         addParticipant(userId, userInfo, stream);
+        if (userId !== voxeet.userId) {
+          participants.push(userId);
+        }
       });
 
       voxeet.on('participantRemoved', function(userId) {
         removeParticipant(userId);
+        if (userId !== voxeet.userId) {
+          participants = participants.slice(participants.indexOf(userId), 1);
+        }
       });
 
       voxeet.on('messageReceived', function(msg) {
@@ -219,7 +255,7 @@
         document.getElementById('messages').appendChild(node);
       });
 
-      voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "John Doe"})
+      voxeet.initialize("MyCustomerKey", "MyCustomerSecret", {name: "John Doe"})
             .then(function(myUserId){
                 enableUI();
             });
