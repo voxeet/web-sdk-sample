@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Voxeet SDK</title>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/efdjhmbmjlhomjhnnmpeeillhpnldoje">
     <style type="text/css">
       .flex {
         display: flex;
@@ -30,8 +31,9 @@
         border: 1px solid #FF0000;
       }
 
-      input {
-
+      .round {
+        -webkit-clip-path: circle(35% at 50% 50%);
+        clip-path: circle(35% at 50% 50%);
       }
 
     </style>
@@ -44,11 +46,33 @@
           <input type="text" id="room-id" autofocus="">
         </div>
         <div>
-          <button id="demo-button" disabled="true">Demo</button>
-          <button id="create-button" disabled="true">Create</button>
-          <button id="join-button" disabled="true">Join</button>
-          <button id="leave-button" disabled="true">Leave</button>
-          <button id="mute-button">Mute</button>
+          <div>
+            <button id="demo-button" disabled="true">Demo</button>
+            <button id="create-button" disabled="true">Create</button>
+            <button id="join-button" disabled="true">Join</button>
+            <button id="leave-button" disabled="true">Leave</button>
+            <button id="stop-video-button" disabled="true">Stop own video</button>
+            <button id="start-video-button" disabled="true">Start own video</button>
+            <button id="mute-button">Mute</button>
+            <select id="video-size">
+              <option value="1080">1080p</option>
+              <option value="720">720p</option>
+              <option value="640">640x480</option>
+              <option value="320" selected="true">320x240</option>
+            </select>
+            <select id="framerate">
+              <option value="30">30fps</option>
+              <option value="25">25fps</option>
+              <option value="20" selected="true">20fps</option>
+              <option value="15">15fps</option>
+              <option value="10">10fps</option>
+            </select>
+          </div>
+          <div>
+            <button id="start-share-button">Start Screenshare</button>
+            <button id="stop-share-button">Stop Screenshare</button>
+            <button id="fullscreen-share-button">Fullscreen Screenshare</button>
+          </div>
         </div>
       </div>
 
@@ -59,6 +83,9 @@
       </div>
 
       <div id="messages">
+        <div id="feedback">
+
+        </div>
         <h3>Messages</h3>
         <div>
           <input type="text" id="message-input" autofocus="">
@@ -67,7 +94,7 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.2.10" type="text/javascript"></script>
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.3.0" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
@@ -131,6 +158,29 @@
 
           node.appendChild(muteButton);
 
+          var muteVideoButton = document.createElement('button');
+          muteVideoButton.setAttribute('id', userId);
+          muteVideoButton.innerHTML = 'Stop video';
+
+          muteVideoButton.onclick = function(e) {
+            var userId = e.target.getAttribute('id');
+            voxeet.stopVideoForUser(userId);
+          }
+
+          node.appendChild(muteVideoButton);
+
+          var unmuteVideoButton = document.createElement('button');
+          unmuteVideoButton.setAttribute('id', userId);
+          unmuteVideoButton.innerHTML = 'Start video';
+
+          unmuteVideoButton.onclick = function(e) {
+            var userId = e.target.getAttribute('id');
+            voxeet.startVideoForUser(userId);
+          }
+
+          node.appendChild(unmuteVideoButton);
+
+
           participantList.appendChild(node);
 
           updatePosition(userId);
@@ -151,6 +201,45 @@
         }
       }
 
+      function createVideoTag(userId, stream) {
+        var node = document.createElement('video');
+        node.setAttribute('id', 'video-' + userId);
+        node.setAttribute('class', 'round');
+        node.setAttribute('width', 320);
+        node.setAttribute('height', 320);
+
+        document.body.appendChild(node);
+
+        navigator.attachMediaStream(node, stream);
+
+        node.autoplay = 'autoplay';
+        node.muted = true;
+      }
+
+      function removeVideoTag(userId) {
+      var node = document.getElementById('video-' + userId);
+        if(node) {
+          node.parentNode.removeChild(node);
+        }
+      }
+
+      function createFeedbackTag(userId, stream) {
+        var node = document.createElement('video');
+        var feedbackNode = document.getElementById('feedback');
+
+        node.setAttribute('id', 'video-' + userId);
+        node.setAttribute('class', 'round');
+        node.setAttribute('width', 320);
+        node.setAttribute('height', 320);
+
+        feedbackNode.appendChild(node);
+
+        navigator.attachMediaStream(node, stream);
+
+        node.autoplay = 'autoplay';
+        node.muted = true;
+      }
+
       function enableUI() {
         var roomInput = document.getElementById('room-id');
         var messageInput = document.getElementById('message-input');
@@ -160,6 +249,11 @@
         var sendButton = document.getElementById('send-button');
         var leaveButton = document.getElementById('leave-button');
         var muteButton = document.getElementById('mute-button');
+        var stopVideoButton = document.getElementById('stop-video-button');
+        var startVideoButton = document.getElementById('start-video-button');
+        var startShareButton = document.getElementById('start-share-button');
+        var stopShareButton = document.getElementById('stop-share-button');
+        var fullscreenShareButton = document.getElementById('fullscreen-share-button');
 
         demoButton.disabled = false;
         createButton.disabled = false;
@@ -187,7 +281,45 @@
 
         joinButton.onclick = function() {
           if (roomInput !== undefined) {
-            voxeet.joinConference(roomInput.value);
+            var selectNode = document.getElementById('video-size');
+            var frameRateNode = document.getElementById('framerate');
+
+            var constraints = {
+              audio: true,
+              video: {
+                mandatory: {
+                  minWidth: 160,
+                  minHeight: 120,
+                  maxWidth: 320,
+                  maxHeight: 240,
+                  minFrameRate: 5,
+                  maxFrameRate: 30
+                }
+              }
+            };
+
+            constraints.video.mandatory.maxFrameRate = frameRateNode.value;
+
+            switch (selectNode.value) {
+              case "1080":
+                constraints.video.mandatory.maxWidth = 1920;
+                constraints.video.mandatory.maxHeight = 1080;
+                break;
+              case "720":
+                constraints.video.mandatory.maxWidth = 1280;
+                constraints.video.mandatory.maxHeight = 720;
+                break;
+              case "640":
+                constraints.video.mandatory.maxWidth = 640;
+                constraints.video.mandatory.maxHeight = 480;
+                break;
+              case "320":
+                constraints.video.mandatory.maxWidth = 320;
+                constraints.video.mandatory.maxHeight = 240;
+                break;
+            }
+
+            voxeet.joinConference(roomInput.value, constraints);
           }
         }
 
@@ -201,6 +333,33 @@
 
         muteButton.onclick = function() {
           voxeet.toggleMute(voxeet.userId);
+        }
+
+        startShareButton.onclick = function() {
+            voxeet.startScreenShare();
+        }
+
+        stopShareButton.onclick = function() {
+          voxeet.stopScreenShare();
+        }
+
+        fullscreenShareButton.onclick = function() {
+          var elem = document.getElementById("screen-share");
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+          } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+          }
+        }
+
+        stopVideoButton.onclick = function() {
+          voxeet.stopVideoForUser(voxeet.userId);
+        }
+
+        startVideoButton.onclick = function() {
+          voxeet.startVideoForUser(voxeet.userId);
         }
       }
 
@@ -227,25 +386,53 @@
             }
           }
         }, 500);
+
+        document.getElementById('stop-video-button').disabled = false;
+        document.getElementById('start-video-button').disabled = false;
       });
 
       voxeet.on('conferenceLeft', function() {
         document.getElementById('leave-button').disabled = true;
         document.getElementById('join-button').disabled = false;
+        document.getElementById('stop-video-button').disabled = true;
+        document.getElementById('start-video-button').disabled = true;
       });
 
       voxeet.on('participantAdded', function(userId, userInfo, stream) {
-        addParticipant(userId, userInfo, stream);
-        if (userId !== voxeet.userId) {
+        if (userId !== voxeet.userId) { // != of me
           participants.push(userId);
+          addParticipant(userId, userInfo, stream);
+          createVideoTag(userId, stream);
+        } else { // Adding feedback stream
+          createFeedbackTag(userId, stream);
+        }
+      });
+
+      voxeet.on('participantUpdated', function(userId, stream) {
+        var node = document.getElementById('video-' + userId);
+        if(stream.getVideoTracks().length > 0) {
+          if (!node) {
+            if (userId == voxeet.userId) {
+              createFeedbackTag(userId, stream);
+            } else {
+              createVideoTag(userId, stream);
+            }
+
+          }
+        } else {
+          if (node) {
+            removeVideoTag(userId);
+          }
         }
       });
 
       voxeet.on('participantRemoved', function(userId) {
         removeParticipant(userId);
+
         if (userId !== voxeet.userId) {
           participants = participants.slice(participants.indexOf(userId), 1);
         }
+        removeVideoTag(userId);
       });
 
       voxeet.on('messageReceived', function(msg) {
@@ -255,10 +442,35 @@
         document.getElementById('messages').appendChild(node);
       });
 
-      voxeet.initialize("MyCustomerKey", "MyCustomerSecret", {name: "John Doe"})
+      voxeet.on('screenShareStarted', function(userId, stream) {
+        var node = document.createElement('video');
+        node.setAttribute('id', 'screen-share');
+
+        document.body.appendChild(node);
+
+        navigator.attachMediaStream(node, stream);
+
+        node.autoplay = 'autoplay';
+        node.muted = true;
+      });
+
+      voxeet.on('screenShareStopped', function() {
+        var node = document.getElementById('screen-share');
+        if (node) {
+          node.parentNode.removeChild(node);
+        }
+      });
+
+      voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "John Doe"})
             .then(function(myUserId){
                 enableUI();
             });
+
+      window.onbeforeunload = function() {
+        if (voxeet) {
+          voxeet.leaveConferen();
+        }
+      }
 
     </script>
   </body>
