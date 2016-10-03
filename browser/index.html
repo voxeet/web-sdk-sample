@@ -54,6 +54,7 @@
             <button id="stop-video-button" disabled="true">Stop own video</button>
             <button id="start-video-button" disabled="true">Start own video</button>
             <button id="mute-button">Mute</button>
+            <button id="mute-conference-button">Mute conference</button>
             <select id="video-size">
               <option value="1080">1080p</option>
               <option value="720">720p</option>
@@ -94,7 +95,7 @@
       </div>
     </div>
 
-    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.3.0" type="text/javascript"></script>
+    <script src="https://npmcdn.com/@voxeet/voxeet-web-sdk@0.3.8" type="text/javascript"></script>
     <script type="text/javascript">
       var participants = [];
 
@@ -180,7 +181,6 @@
 
           node.appendChild(unmuteVideoButton);
 
-
           participantList.appendChild(node);
 
           updatePosition(userId);
@@ -249,6 +249,7 @@
         var sendButton = document.getElementById('send-button');
         var leaveButton = document.getElementById('leave-button');
         var muteButton = document.getElementById('mute-button');
+        var muteConferenceButton = document.getElementById('mute-conference-button');
         var stopVideoButton = document.getElementById('stop-video-button');
         var startVideoButton = document.getElementById('start-video-button');
         var startShareButton = document.getElementById('start-share-button');
@@ -318,8 +319,8 @@
                 constraints.video.mandatory.maxHeight = 240;
                 break;
             }
-
-            voxeet.joinConference(roomInput.value, constraints);
+              voxeet.joinConference(roomInput.value, constraints)
+                    .catch(e => console.error(e));
           }
         }
 
@@ -361,9 +362,17 @@
         startVideoButton.onclick = function() {
           voxeet.startVideoForUser(voxeet.userId);
         }
+
+        muteConferenceButton.onclick = function() {
+          isConferenceMuted = !isConferenceMuted;
+          for (k in participants) {
+            voxeet.muteUser(k, isConferenceMuted);
+          }
+        }
       }
 
       var voxeet = new VoxeetSdk();
+      var isConferenceMuted = false;
       var participants = [];
       var timeout = null;
 
@@ -400,9 +409,12 @@
 
       voxeet.on('participantAdded', function(userId, userInfo, stream) {
         if (userId !== voxeet.userId) { // != of me
-          participants.push(userId);
+          participants[userId] = userId;
           addParticipant(userId, userInfo, stream);
           createVideoTag(userId, stream);
+
+          voxeet.muteUser(userId, isConferenceMuted);
+
         } else { // Adding feedback stream
           createFeedbackTag(userId, stream);
         }
@@ -430,7 +442,9 @@
         removeParticipant(userId);
 
         if (userId !== voxeet.userId) {
+          console.log(participants);
           participants = participants.slice(participants.indexOf(userId), 1);
+          console.log(participants);
         }
         removeVideoTag(userId);
       });
@@ -461,14 +475,20 @@
         }
       });
 
+      voxeet.on('conferenceStatusUpdated', function(infos) {
+        console.log(infos);
+      });
+
       voxeet.initialize("ConsumerKey", "ConsumerSecret", {name: "John Doe"})
             .then(function(myUserId){
                 enableUI();
+
+                voxeet.subscribeConferenceStatus("toto");
             });
 
       window.onbeforeunload = function() {
         if (voxeet) {
-          voxeet.leaveConferen();
+          voxeet.leaveConference();
         }
       }
 
