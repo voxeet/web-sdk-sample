@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Voxeet SDK</title>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/efdjhmbmjlhomjhnnmpeeillhpnldoje">
+    <style type="text/css">
+      .flex {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .flex > div {
+        flex: 1 1 auto;
+        margin: 20px;
+      }
+
+      .flex > input {
+          align-self: center;
+      }
+
+      .flex-column {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .flex-column > div {
+        flex: 1 1 auto;
+      }
+
+      .red {
+        border: 1px solid #FF0000;
+      }
+
+      .round {
+        -webkit-clip-path: circle(35% at 50% 50%);
+        clip-path: circle(35% at 50% 50%);
+      }
+
+    </style>
+    <script src="https://unpkg.com/babel-polyfill/dist/polyfill.min.js"></script>
+  </head>
+  <body>
+    <div class="flex">
+      <div id="room-choice">
+        <h3>Voxeet Sdk Demo</h3>
+        <div>
+          <input type="text" id="room-id" autofocus="">
+        </div>
+        <div>
+          <div>
+            <button id="demo-button" disabled="true">Demo</button>
+            <button id="create-button" disabled="true">Create</button>
+            <button id="join-button" disabled="true">Join</button>
+            <button id="leave-button" disabled="true">Leave</button>
+            <button id="stop-video-button" disabled="true">Stop own video</button>
+            <button id="start-video-button" disabled="true">Start own video</button>
+            <button id="mute-button">Mute</button>
+            <button id="mute-conference-button">Mute conference</button>
+            <select id="video-size">
+              <option value="1080">1080p</option>
+              <option value="720">720p</option>
+              <option value="640">640x480</option>
+              <option value="320" selected="true">320x240</option>
+            </select>
+            <select id="framerate">
+              <option value="30">30fps</option>
+              <option value="25">25fps</option>
+              <option value="20" selected="true">20fps</option>
+              <option value="15">15fps</option>
+              <option value="10">10fps</option>
+            </select>
+          </div>
+          <div>
+            <button id="start-share-button">Start Screenshare</button>
+            <button id="stop-share-button">Stop Screenshare</button>
+            <button id="fullscreen-share-button">Fullscreen Screenshare</button>
+          </div>
+          <div>
+            <button id="start-recording">Start recording</button>
+            <button id="stop-recording">Stop recording</button>
+            <button id="replay-recording">Replay recording</button>
+          </div>
+          <div>
+            <select id="audio-devices">
+            </select>
+            <select id="video-devices">
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="participants">
+        <h3>Participants</h3>
+        <div id="participant-list" class="flex-column">
+        </div>
+      </div>
+
+      <div id="messages">
+        <div id="feedback">
+
+        </div>
+        <h3>Messages</h3>
+        <div>
+          <input type="text" id="message-input" autofocus="">
+          <button id="send-button">Send</button>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/client.js"></script>
+  </body>
+</html>
+
