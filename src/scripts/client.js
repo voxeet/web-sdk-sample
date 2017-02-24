@@ -1,5 +1,6 @@
 import VoxeetSdk from '@voxeet/voxeet-web-sdk'
 import config from './config'
+import css from '../styles/main.css'
 
 import { 
   enableUI, 

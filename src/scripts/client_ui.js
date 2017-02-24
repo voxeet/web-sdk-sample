@@ -18,6 +18,8 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   const startRecordingButton = document.getElementById('start-recording');
   const stopRecordingButton = document.getElementById('stop-recording');
   const replayRecordingButton = document.getElementById('replay-recording');
+  const conferenceIdRecorded = document.getElementById('conference-id-recorded');
+  const audioDeviceId = document.getElementById('audio-device-id'); 
 
   demoButton.disabled = false;
   createButton.disabled = false;
@@ -83,7 +85,13 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
           break;
       }
 
-      voxeet.joinConference(roomInput.value)
+      if (audioDeviceId.value !== "") {
+        constraints.audio = {
+          deviceId: {exact: audioDeviceId.value}
+        }
+      }
+
+      voxeet.joinConference(roomInput.value, constraints)
         .then((info) => {
           console.log(info);
           voxeet.enumerateAudioDevices()
@@ -170,7 +178,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   }
 
   startRecordingButton.onclick = function() {
-    console.log(voxeet.conference.conferenceId);
+    conferenceIdRecorded.value = voxeet.conference.conferenceId;
     voxeet.startRecording();
   }
 
@@ -179,7 +187,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   }
 
   replayRecordingButton.onclick = function() {
-    voxeet.replayConference(roomInput.value); 
+    voxeet.replayConference(conferenceIdRecorded.value); 
   }
 }
 
@@ -233,8 +241,8 @@ export const createFeedbackTag = (userId, stream) => {
 
   node.setAttribute('id', 'video-' + userId);
   node.setAttribute('class', 'round');
-  node.setAttribute('width', 320);
-  node.setAttribute('height', 320);
+  node.setAttribute('width', 200);
+  node.setAttribute('height', 200);
 
   feedbackNode.appendChild(node);
 

@@ -1,0 +1,83 @@
+.logo {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex > div {
+  flex: 1 1 auto;
+  margin: 20px;
+}
+
+.flex > input {
+  align-self: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-column > div {
+  flex: 1 1 auto;
+}
+
+.red {
+  border: 1px solid #FF0000;
+}
+
+.round {
+  -webkit-clip-path: circle(35% at 50% 50%);
+  clip-path: circle(35% at 50% 50%);
+}
+
+.center {
+  text-align: center;
+}
+
+#conference-id-recorded {
+  width: 250px;
+  margin-bottom: 5px;
+}
+
+#feedback {
+  width: 200px;
+  margin: auto;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+}
+
+#message-input {
+  width: 100%;
+}
+
+#messages > button {
+  margin: auto;
+}
+
+button {
+  background-color: #437fc1;
+  border: none;
+  border-radius: 2px;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8em;
+  margin: 0 0 0.5em 0;
+  padding: 0.5em 0.7em 0.5em 0.7em;
+}
+
+button:active {
+  background-color: #4372c1;
+}
+
+button:hover {
+  background-color: #4372c1;
+}
+
+button[disabled] {
+  background-color: #a8aab2;
+}
