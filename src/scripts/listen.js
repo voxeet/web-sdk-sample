@@ -90,6 +90,25 @@ const main = (params) => {
           removeVideoTag(userId);
         });
 
+        voxeet.on('screenShareStarted', (userId, stream) => {
+          var node = document.createElement('video');
+          node.setAttribute('id', 'screen-share');
+
+          document.body.appendChild(node);
+
+          navigator.attachMediaStream(node, stream);
+
+          node.autoplay = 'autoplay';
+          node.muted = true;
+        });
+
+        voxeet.on('screenShareStopped', () => {
+          var node = document.getElementById('screen-share');
+          if (node) {
+            node.parentNode.removeChild(node);
+          }
+        });
+        
         voxeet.initialize(config.customerKey, config.customerSecret)
           .then((myUserId) => {
             voxeet.listenConference(params["conferenceId"], {
