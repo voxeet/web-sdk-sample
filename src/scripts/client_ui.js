@@ -20,6 +20,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   const replayRecordingButton = document.getElementById('replay-recording');
   const conferenceIdRecorded = document.getElementById('conference-id-recorded');
   const audioDeviceId = document.getElementById('audio-device-id'); 
+  const videoDeviceId = document.getElementById('video-device-id'); 
 
   demoButton.disabled = false;
   createButton.disabled = false;
@@ -85,9 +86,15 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
           break;
       }
 
-      if (audioDeviceId.value !== "") {
+      if (audioDeviceId.value) {
         constraints.audio = {
           deviceId: {exact: audioDeviceId.value}
+        }
+      }
+
+      if (videoDeviceId.value) {
+        constraints.video = {
+          deviceId: {exact: videoDeviceId.value}
         }
       }
 
