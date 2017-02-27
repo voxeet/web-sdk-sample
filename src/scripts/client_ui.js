@@ -1,3 +1,5 @@
+import VoxeetSdk from '@voxeet/voxeet-web-sdk'
+
 export const enableUI = (voxeet, participants, isConferenceMuted) => {
   const roomInput = document.getElementById('room-id');
   const messageInput = document.getElementById('message-input');
@@ -146,7 +148,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   }
 
   startShareButton.onclick = function() {
-    voxeet.startScreenShare();
+    voxeet.startScreenShare(VoxeetSdk.ScreenShareOptions.ALL);
   }
 
   stopShareButton.onclick = function() {
