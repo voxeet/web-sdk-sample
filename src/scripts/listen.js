@@ -3,7 +3,7 @@ import config from './config'
 import bowser from 'bowser'
 
 const createVideoTag = (userId, stream) => {
-  var node = document.createElement('video');
+  let node = document.createElement('video');
   node.setAttribute('id', 'video-' + userId);
   node.setAttribute('class', 'round');
   node.setAttribute('width', 320);
@@ -18,14 +18,14 @@ const createVideoTag = (userId, stream) => {
 }
 
 const removeVideoTag = (userId) => {
-  var node = document.getElementById('video-' + userId);
+  let node = document.getElementById('video-' + userId);
   if (node) {
     node.parentNode.removeChild(node);
   }
 }
 
 const getParameters = () => {
-  var params = {};
+  let params = {};
   window.location.search.substr(1).split("&").forEach((item) => {
     const k = item.split("=")[0];
     const v = decodeURIComponent(item.split("=")[1]); 
@@ -40,10 +40,10 @@ const main = (params) => {
     if (bowser.mac || bowser.windows || bowser.linux || bowser.android) {
       if (bowser.chrome || bowser.firefox || bowser.opera) {
 
-        var muteConferenceButton = document.getElementById('mute');
-        var voxeet = new VoxeetSdk();
-        var isConferenceMuted = false;
-        var participants = [];
+        let muteConferenceButton = document.getElementById('mute');
+        let voxeet = new VoxeetSdk();
+        let isConferenceMuted = false;
+        let participants = {};
 
         muteConferenceButton.onclick = () => {
           isConferenceMuted = !isConferenceMuted;
@@ -61,8 +61,12 @@ const main = (params) => {
           }
         }
 
-        voxeet.on('participantAdded', (userId, userInfo, stream) => {
-          participants[userId] = userId;
+        voxeet.on('participantAdded', (userId, userInfo) => {
+          participants[userId] = userInfo;
+        });
+
+
+        voxeet.on('participantJoined', (userId, stream) => {
           voxeet.setUserPosition(userId, 0.0, 0.1);
           voxeet.muteUser(userId, isConferenceMuted);
 
@@ -73,7 +77,7 @@ const main = (params) => {
         });
 
         voxeet.on('participantUpdated', (userId, stream) => {
-          var node = document.getElementById('video-' + userId);
+          let node = document.getElementById('video-' + userId);
           if(stream.getVideoTracks().length > 0) {
             if (!node) {
               createVideoTag(userId, stream);
@@ -85,13 +89,13 @@ const main = (params) => {
           }
         });
 
-        voxeet.on('participantRemoved', (userId) => {
-          participants = participants.slice(participants.indexOf(userId), 1);
+        voxeet.on('participantLeft', (userId) => {
           removeVideoTag(userId);
+          delete participants[userId];
         });
 
         voxeet.on('screenShareStarted', (userId, stream) => {
-          var node = document.createElement('video');
+          let node = document.createElement('video');
           node.setAttribute('id', 'screen-share');
 
           document.body.appendChild(node);
@@ -103,7 +107,7 @@ const main = (params) => {
         });
 
         voxeet.on('screenShareStopped', () => {
-          var node = document.getElementById('screen-share');
+          let node = document.getElementById('screen-share');
           if (node) {
             node.parentNode.removeChild(node);
           }

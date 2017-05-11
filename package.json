@@ -5,7 +5,7 @@
   "description": "Voxeet Web Sdk Examples",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server -d --hot --inline --content-base ./src",
+    "start": "webpack-dev-server -d --hot --inline --devtool source-map --content-base ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,12 +24,13 @@
     "babel-preset-stage-0": "^6.22.0",
     "css-loader": "^0.26.1",
     "html-webpack-plugin": "^2.28.0",
+    "source-map-loader": "^0.2.0",
     "style-loader": "^0.13.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
-    "@voxeet/voxeet-web-sdk": "^0.4.3",
+    "@voxeet/voxeet-web-sdk": "^1.0.9",
     "bowser": "^1.6.0"
   }
 }

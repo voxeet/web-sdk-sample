@@ -46,10 +46,13 @@ const main = () => {
     conferenceLeftUI();
   });
 
-  voxeet.on('participantAdded', (userId, userInfo, stream) => {
+  voxeet.on('participantAdded', (userId, userInfo) => {
+    participants[userId] = userInfo;
+  });
+
+  voxeet.on('participantJoined', (userId, stream) => {
     if (userId !== voxeet.userId) { // != of me
-      participants[userId] = {};
-      addParticipant(voxeet, participants, userId, userInfo, stream);
+      addParticipant(voxeet, participants, userId, stream);
 
       if (stream && stream.getVideoTracks().length > 0) {
         createVideoTag(userId, stream);
@@ -83,7 +86,7 @@ const main = () => {
     }
   });
 
-  voxeet.on('participantRemoved', (userId) => {
+  voxeet.on('participantLeft', (userId) => {
     removeParticipant(participants, userId);
 
     if (userId !== voxeet.userId) {
@@ -128,6 +131,9 @@ const main = () => {
     .then((myUserId) => {
       enableUI(voxeet, participants, isConferenceMuted);
       voxeet.subscribeConferenceStatus("toto");
+    })
+    .catch((e) => {
+      console.error(e);
     });
 }
 

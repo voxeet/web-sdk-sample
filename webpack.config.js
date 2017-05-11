@@ -18,6 +18,11 @@ const config = {
     rules: [
       {
         test: /.jsx?$/,
+        use: 'source-map-loader',
+        enforce: "pre",
+      },
+      {
+        test: /.jsx?$/,
         use: 'babel-loader',
         exclude: /node_modules/,
         include: path.resolve(__dirname),

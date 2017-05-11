@@ -54,7 +54,9 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
       var frameRateNode = document.getElementById('framerate');
 
       var constraints = {
-        audio: true,
+        audio: {
+          mandatory: {} 
+        },
         video: {
           mandatory: {
             minWidth: 160,
@@ -89,16 +91,14 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
       }
 
       if (audioDeviceId.value) {
-        constraints.audio = {
-          deviceId: {exact: audioDeviceId.value}
-        }
+        constraints.audio.mandatory.sourceId = audioDeviceId.value;
       }
 
       if (videoDeviceId.value) {
-        constraints.video = {
-          deviceId: {exact: videoDeviceId.value}
-        }
+        constraints.video.mandatory.sourceId = videoDeviceId.value;
       }
+
+      //constraints.video = false;
 
       voxeet.joinConference(roomInput.value, constraints)
         .then((info) => {
@@ -196,7 +196,10 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   }
 
   replayRecordingButton.onclick = function() {
-    voxeet.replayConference(conferenceIdRecorded.value); 
+    voxeet.replayConference(conferenceIdRecorded.value, 30000)
+      .catch(function(e) {
+        console.error(e);
+      }); 
   }
 }
 
@@ -267,16 +270,16 @@ const updatePosition = (voxeet, participants, userId) => {
   }
 }
 
-
-export const addParticipant = (voxeet, participants, userId, userInfo, stream) => {
+export const addParticipant = (voxeet, participants, userId, stream) => {
   var participantList = document.getElementById('participant-list');
-  participants[userId] = {x: 0.0, y: 0.5}; // Initial position
+  participants[userId].x = 0.0;
+  participants[userId].y = 0.5; // Initial position
 
   if (voxeet.userId !== userId) {
 
     var node = document.createElement('div');
 
-    node.innerHTML = '<div>' + userInfo['name'] + '</div>';
+    node.innerHTML = '<div>' + participants[userId].name + '</div>';
     node.setAttribute('id', "participant-" + userId);
     node.setAttribute('class', 'flex red');
 
@@ -358,7 +361,6 @@ export const addParticipant = (voxeet, participants, userId, userInfo, stream) =
 
 export const removeParticipant = (participants, userId) => {
   var node = document.getElementById("participant-" + userId);
-  participants[userId] = {x: 0.0, y: 0.5}; // Initial position
   if (node != undefined) {
     node.parentNode.removeChild(node);
   }
