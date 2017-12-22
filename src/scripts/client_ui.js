@@ -100,7 +100,10 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
 
       //constraints.video = false;
 
-      voxeet.joinConference(roomInput.value, constraints)
+      voxeet.joinConference(roomInput.value, {
+          constraints: constraints,
+          audio3D: true
+        })
         .then((info) => {
           console.log(info);
           voxeet.enumerateAudioDevices()
@@ -196,7 +199,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   }
 
   replayRecordingButton.onclick = function() {
-    voxeet.replayConference(conferenceIdRecorded.value, 30000)
+    voxeet.replayConference(conferenceIdRecorded.value, 0)
       .catch(function(e) {
         console.error(e);
       }); 
