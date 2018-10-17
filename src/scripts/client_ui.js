@@ -21,8 +21,8 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
   const stopRecordingButton = document.getElementById('stop-recording');
   const replayRecordingButton = document.getElementById('replay-recording');
   const conferenceIdRecorded = document.getElementById('conference-id-recorded');
-  const audioDeviceId = document.getElementById('audio-device-id'); 
-  const videoDeviceId = document.getElementById('video-device-id'); 
+  const audioDeviceId = document.getElementById('audio-device-id');
+  const videoDeviceId = document.getElementById('video-device-id');
 
   demoButton.disabled = false;
   createButton.disabled = false;
@@ -54,48 +54,38 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
       var frameRateNode = document.getElementById('framerate');
 
       var constraints = {
-        audio: {
-          mandatory: {} 
-        },
-        video: {
-          mandatory: {
-            minWidth: 160,
-            minHeight: 120,
-            maxWidth: 320,
-            maxHeight: 240,
-            minFrameRate: 5,
-            maxFrameRate: 30
+          audio: true,
+          video: {
+            width: 1280,
+            height: 720,
           }
-        }
       };
-
-      constraints.video.mandatory.maxFrameRate = frameRateNode.value;
 
       switch (selectNode.value) {
         case "1080":
-          constraints.video.mandatory.maxWidth = 1920;
-          constraints.video.mandatory.maxHeight = 1080;
+          constraints.video.width = 1920;
+          constraints.video.height = 1080;
           break;
         case "720":
-          constraints.video.mandatory.maxWidth = 1280;
-          constraints.video.mandatory.maxHeight = 720;
+          constraints.video.width = 1280;
+          constraints.video.height = 720;
           break;
         case "640":
-          constraints.video.mandatory.maxWidth = 640;
-          constraints.video.mandatory.maxHeight = 480;
+          constraints.video.width = 640;
+          constraints.video.height = 480;
           break;
         case "320":
-          constraints.video.mandatory.maxWidth = 320;
-          constraints.video.mandatory.maxHeight = 240;
+          constraints.video.width = 320;
+          constraints.video.height = 240;
           break;
       }
 
       if (audioDeviceId.value) {
-        constraints.audio.mandatory.sourceId = audioDeviceId.value;
+        constraints.audio.sourceId = audioDeviceId.value;
       }
 
       if (videoDeviceId.value) {
-        constraints.video.mandatory.sourceId = videoDeviceId.value;
+        constraints.video.sourceId = videoDeviceId.value;
       }
 
       //constraints.video = false;
@@ -114,7 +104,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
                 var opt = document.createElement('option');
                 opt.value = source.deviceId;
                 opt.innerHTML = source.label;
-                audioInputNode.appendChild(opt); 
+                audioInputNode.appendChild(opt);
               });
             })
             .catch(function(e) { console.error(e); });
@@ -127,7 +117,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
                 var opt = document.createElement('option');
                 opt.value = source.deviceId;
                 opt.innerHTML = source.label;
-                videoInputNode.appendChild(opt); 
+                videoInputNode.appendChild(opt);
               });
             })
             .catch(function(e) { console.error(e); });
@@ -186,7 +176,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
 
   audioInputNode.onchange = function() {
     voxeet.selectAudioInput(audioInputNode.value)
-      .catch(e => console.error(e)); 
+      .catch(e => console.error(e));
   }
 
   startRecordingButton.onclick = function() {
@@ -202,7 +192,7 @@ export const enableUI = (voxeet, participants, isConferenceMuted) => {
     voxeet.replayConference(conferenceIdRecorded.value, 0)
       .catch(function(e) {
         console.error(e);
-      }); 
+      });
   }
 }
 
@@ -368,5 +358,3 @@ export const removeParticipant = (participants, userId) => {
     node.parentNode.removeChild(node);
   }
 }
-
-
