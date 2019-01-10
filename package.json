@@ -31,6 +31,6 @@
   },
   "dependencies": {
     "@voxeet/voxeet-web-sdk": "^1.8.5",
-    "bowser": "^1.6.0"
+    "bowser": "^1.9.4"
   }
 }
