@@ -30,7 +30,7 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
-    "@voxeet/voxeet-web-sdk": "^1.8.5",
+    "@voxeet/voxeet-web-sdk": "^1.9.6",
     "bowser": "^1.9.4"
   }
 }
