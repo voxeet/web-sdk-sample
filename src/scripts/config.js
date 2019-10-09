@@ -1,6 +1,6 @@
 const config = {
-  customerKey: "YourCustomerKey",
-  customerSecret: "YourCustomerSecret"
+  consumerKey: "YourCustomerKey",
+  consumerSecret: "YourCustomerSecret"
 }
 
 export default config;
