@@ -127,7 +127,7 @@ const main = () => {
     console.log(infos);
   });
 
-  voxeet.initialize(config.customerKey, config.customerSecret, {name: "John Doe"})
+  voxeet.initialize(config.consumerKey, config.consumerSecret, {name: "John Doe"})
     .then((myUserId) => {
       enableUI(voxeet, participants, isConferenceMuted);
       voxeet.subscribeConferenceStatus("toto");
